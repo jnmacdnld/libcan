@@ -14,18 +14,17 @@
 
 #define NUM_FRAMES 10
 
-int main(int argc, const char **argv)
-{
-  can_open("can0");
-  struct can_frame frames[NUM_FRAMES];
-  can_dump(frames, NUM_FRAMES);
+int main(int argc, const char **argv) {
+    can_open("can0");
+    struct can_frame frames[NUM_FRAMES];
+    can_dump(frames, NUM_FRAMES);
 
-  // Print the frames
-  for (int i = 0; i < NUM_FRAMES; i++) {
-    printf("[%d] ", frames[i].can_dlc);
-    for (int k = 0; k < 8; k++) {
-      printf("%02x ", frames[i].data[k]);
+    // Print the frames
+    for (int i = 0; i < NUM_FRAMES; i++) {
+        printf("[%d] ", frames[i].can_dlc);
+        for (int k = 0; k < 8; k++) {
+            printf("%02x ", frames[i].data[k]);
+        }
+        printf("\n");
     }
-    printf("\n");
-  }
 }
