@@ -15,13 +15,16 @@
 #define NUM_FRAMES 10
 
 int main(int argc, const char **argv) {
-    can_open("can0");
-    struct can_frame frames[NUM_FRAMES];
+    char itf[] = "vcan0";
+    can_open(itf);
+
+    struct can_frame frames[NUM_FRAMES] = {0};
     can_dump(frames, NUM_FRAMES);
 
     // Print the frames
     for (int i = 0; i < NUM_FRAMES; i++) {
-        printf("[%d] ", frames[i].can_dlc);
+        printf("  %s  %03x   [%d]  ", itf, frames[i].can_id & 0xfff,
+            frames[i].can_dlc);
         for (int k = 0; k < 8; k++) {
             printf("%02x ", frames[i].data[k]);
         }

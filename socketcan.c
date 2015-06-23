@@ -71,7 +71,8 @@ int can_dump(struct can_frame *dump, int num_frames) {
         if (select((soc + 1), &readSet, NULL, NULL, &timeout) >= 0) {
             if (FD_ISSET(soc, &readSet)) {
                 recvbytes = read(soc, &frame_rd, sizeof(struct can_frame));
-                if(recvbytes) {
+                if (recvbytes)
+                {
                     dump[i] = frame_rd;
                 }
             }
