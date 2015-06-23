@@ -1,3 +1,6 @@
+// Large portions of code re-used from
+// https://lnguin.wordpress.com/tag/socketcan-example/
+
 #include "socketcan.h"
 
 #include <stdio.h>
@@ -18,11 +21,12 @@ int can_open(const char *interface)
   struct ifreq ifr;
   struct sockaddr_can addr;
 
-  /* open socket */
+  // Open socket
   soc = socket(PF_CAN, SOCK_RAW, CAN_RAW);
   if(soc < 0)
   {
-    printf("Couldn't open port: socket(2) encountered error %d, exiting", errno);
+    printf("Couldn't open port: socket(2) encountered error %d, exiting",
+      errno);
     return -1;
   }
 
@@ -87,7 +91,8 @@ int can_dump(struct can_frame *dump, int num_frames)
     }
     else
     {
-      printf("Couldn't dump CAN traffic: select(2) encountered error %d\n", errno);
+      printf("Couldn't dump CAN traffic: select(2) encountered error %d\n",
+        errno);
       return -1;
     }
   }
