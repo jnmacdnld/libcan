@@ -10,13 +10,7 @@
 #include "libcan.h"
 
 #include <stdio.h>
-#include <linux/can.h>
-#include <linux/can/raw.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <net/if.h>
 #include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {

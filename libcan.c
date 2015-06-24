@@ -31,8 +31,6 @@ int can_open(const char *itf) {
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
 
-    // fcntl(s, F_SETFL, O_NONBLOCK);
-
     if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("Couldn't open port");
         return -1;
@@ -72,31 +70,3 @@ int can_close(int s) {
     close(s);
     return 0;
 }
-
-// Large portions of code below re-used from
-// https://lnguin.wordpress.com/tag/socketcan-example/
-
-// int can_read(struct can_frame *frame) {
-//     struct can_frame frame_rd;
-//     int recvbytes = 0;
-    
-//     struct timeval timeout = {1, 0};
-//     fd_set readSet;
-//     FD_ZERO(&readSet);
-//     FD_SET(s, &readSet);
-//     if (select((s + 1), &readSet, NULL, NULL, &timeout) >= 0) {
-//         if (FD_ISSET(s, &readSet)) {
-//             recvbytes = read(s, &frame_rd, sizeof(struct can_frame));
-//             if (recvbytes) {
-//                 *frame = frame_rd;
-//                 return 1;
-//             } else {
-//                 return 0;
-//             }
-//         }
-//     } else {
-//         printf("Couldn't read frame: select(2) encountered error %d\n",
-//             errno);
-//         return -1;
-//     }
-// }
