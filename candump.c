@@ -7,7 +7,7 @@
  * of the United States Consitiution. You have been warned.
  */
 
-#include "socketcan.h"
+#include "libcan.h"
 
 #include <stdio.h>
 #include <linux/can.h>
