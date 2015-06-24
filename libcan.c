@@ -1,6 +1,3 @@
-// Large portions of code re-used from
-// https://lnguin.wordpress.com/tag/socketcan-example/
-
 #include "libcan.h"
 
 #include <stdio.h>
@@ -13,7 +10,7 @@
 #include <linux/can/raw.h>
 #include <errno.h>
 
-int can_open(const char *itf) {
+int can_socket(const char *itf) {
     struct ifreq ifr;
     struct sockaddr_can addr;
 
@@ -77,6 +74,9 @@ int can_close() {
     close(s);
     return 0;
 }
+
+// Large portions of code below re-used from
+// https://lnguin.wordpress.com/tag/socketcan-example/
 
 // int can_read(struct can_frame *frame) {
 //     struct can_frame frame_rd;
