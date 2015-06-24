@@ -19,18 +19,12 @@
 #include <string.h>
 
 int main(int argc, char *argv[]) {
-    int s;
-    struct ifreq ifr;
-    struct sockaddr_can addr;
+    if (argc < 2) {
+        printf("Wrong number of arguments\nUsage: candump <CAN interface>");
+        exit(1);
+    }
 
-    s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    strcpy(ifr.ifr_name, "can0");
-    ioctl(s, SIOCGIFINDEX, &ifr) < 0;
-
-    addr.can_family = AF_CAN;
-    addr.can_ifindex = ifr.ifr_ifindex;
-
-    bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0;
+    int s = can_open(argv[1]);
 
     while (1) {
         struct can_frame frame;

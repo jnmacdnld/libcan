@@ -13,8 +13,6 @@
 #include <linux/can/raw.h>
 #include <errno.h>
 
-static int s;
-
 int can_open(const char *itf) {
     struct ifreq ifr;
     struct sockaddr_can addr;
@@ -42,7 +40,7 @@ int can_open(const char *itf) {
         return -1;
     }
 
-    return 0;
+    return s;
 }
 
 int can_send(struct can_frame *frame) {
@@ -56,7 +54,7 @@ int can_send(struct can_frame *frame) {
     }
 }
 
-int can_read(struct can_frame *frame) {
+int can_read(int s, struct can_frame *frame) {
     int nbytes = read(s, frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
