@@ -41,17 +41,6 @@ int can_open(const char *itf) {
     return s;
 }
 
-int can_send(int s, struct can_frame *frame) {
-    int retval;
-        retval = write(s, frame, sizeof(struct can_frame));
-    if (retval != sizeof(struct can_frame)) {
-        perror("Couldn't send frame");
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
 int can_read(int s, struct can_frame *frame) {
     int nbytes = read(s, frame, sizeof(struct can_frame));
 
