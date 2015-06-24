@@ -10,7 +10,8 @@
 #include <linux/can/raw.h>
 #include <errno.h>
 
-int can_socket(const char *itf) {
+int can_open(const char *itf) {
+    int s;
     struct ifreq ifr;
     struct sockaddr_can addr;
 
@@ -40,7 +41,7 @@ int can_socket(const char *itf) {
     return s;
 }
 
-int can_send(struct can_frame *frame) {
+int can_send(int s, struct can_frame *frame) {
     int retval;
         retval = write(s, frame, sizeof(struct can_frame));
     if (retval != sizeof(struct can_frame)) {
@@ -51,15 +52,11 @@ int can_send(struct can_frame *frame) {
     }
 }
 
-// Buggy, do not use
 int can_read(int s, struct can_frame *frame) {
     int nbytes = read(s, frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
-        if (errno != EAGAIN) {
-            perror("Couldn't read from socket");
-        }
-
+        perror("Couldn't send frame");
         return -1;
     }
 
@@ -68,10 +65,10 @@ int can_read(int s, struct can_frame *frame) {
         return -1;
     }
 
-    return 1;
+    return 0;
 }
 
-int can_close() {
+int can_close(int s) {
     close(s);
     return 0;
 }

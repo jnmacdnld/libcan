@@ -24,15 +24,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int s = can_socket(argv[1]);
+    int s = can_open(argv[1]);
 
     while (1) {
         struct can_frame frame;
-        
-        int nbytes = read(s, &frame, sizeof(struct can_frame));
 
-        if (nbytes > 0) {
-            printf("  %s  %03x   [%d]  ", "can0", frame.can_id & 0xfff,
+        if (can_read(s, &frame) == 0) {
+            printf("  %s  %03x   [%d]  ", "can0", ARB_ID(frame),
                 frame.can_dlc);
             for (int k = 0; k < frame.can_dlc; k++) {
                 printf("%02x ", frame.data[k]);
