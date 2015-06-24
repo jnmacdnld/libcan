@@ -2,11 +2,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
         printf("Not enough arguments\n"
                "Usage: cansend <CAN interface> <arb id> <byte> <byte> ...\n");
+        exit(0);
+    }
+
+    if (strlen(argv[2]) > 3) {
+        printf("Only 11-bit arb ids are allowed\n");
         exit(0);
     }
 
