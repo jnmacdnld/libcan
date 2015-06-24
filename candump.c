@@ -1,12 +1,3 @@
-/* Copyright (C) 2015 John Macdonald
- * 
- * This software may not be modified, reused, or redistributed in any way
- * whatsoever as it is the personal property of the individual who wrote it.
- * If you attempt to violate the aformetioned terms, this individual will
- * protect his property though the rights he is granted by the Second Amendment
- * of the United States Consitiution. You have been warned.
- */
-
 #include "libcan.h"
 
 #include <stdio.h>
