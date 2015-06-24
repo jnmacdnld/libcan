@@ -51,6 +51,7 @@ int can_send(struct can_frame *frame) {
     }
 }
 
+// Buggy, do not use
 int can_read(int s, struct can_frame *frame) {
     int nbytes = read(s, frame, sizeof(struct can_frame));
 
