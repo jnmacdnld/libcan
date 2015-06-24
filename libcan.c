@@ -10,7 +10,7 @@
 #include <linux/can/raw.h>
 #include <errno.h>
 
-int can_open(const char *itf) {
+int can_open_raw(const char *itf) {
     int s;
     struct ifreq ifr;
     struct sockaddr_can addr;
@@ -39,7 +39,7 @@ int can_open(const char *itf) {
     return s;
 }
 
-int can_send(int s, struct can_frame *frame) {
+int can_send_raw(int s, struct can_frame *frame) {
     int retval = write(s, frame, sizeof(struct can_frame));
 
     if (retval != sizeof(struct can_frame)) {
@@ -50,7 +50,7 @@ int can_send(int s, struct can_frame *frame) {
     }
 }
 
-int can_read(int s, struct can_frame *frame) {
+int can_read_raw(int s, struct can_frame *frame) {
     int nbytes = read(s, frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
@@ -66,7 +66,7 @@ int can_read(int s, struct can_frame *frame) {
     return 0;
 }
 
-int can_close(int s) {
+int can_close_raw(int s) {
     close(s);
     return 0;
 }

@@ -9,12 +9,12 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int s = can_open(argv[1]);
+    int s = can_open_raw(argv[1]);
 
     while (1) {
         struct can_frame frame;
 
-        if (can_read(s, &frame) == 0) {
+        if (can_read_raw(s, &frame) == 0) {
             printf("  %s  %03x   [%d]  ", "can0", ARB_ID(frame),
                 frame.can_dlc);
             for (int k = 0; k < frame.can_dlc; k++) {

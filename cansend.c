@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    int s = can_open(argv[1]);
+    int s = can_open_raw(argv[1]);
     struct can_frame frame;
     int arb_id = 0;
 
@@ -34,5 +34,6 @@ int main(int argc, char *argv[]) {
         frame.data[i] = (__u8) byte;
     }
 
-    can_send(s, &frame);
+    can_send_raw(s, &frame);
+    can_close_raw(s);
 }
