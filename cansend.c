@@ -4,11 +4,29 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-  if (argc < 4) {
-    printf("Not enough arguments\n"
-           "Usage: cansend <CAN interface> <arb id> <byte> <byte> ...");
-    exit(0);
-  }
+    if (argc < 4) {
+        printf("Not enough arguments\n"
+               "Usage: cansend <CAN interface> <arb id> <byte> <byte> ...\n");
+        exit(0);
+    }
 
-  
+    int s = can_open(argv[1]);
+    struct can_frame frame;
+    int arb_id = 0;
+
+    sscanf(argv[2], "%03x", &arb_id);
+
+    __u8 data_len = (__u8) (argc - 3);
+
+    frame.can_id = (canid_t) arb_id;
+    frame.can_dlc = (__u8) data_len;
+
+    // Fill the array of data bytes
+    for (__u8 i = 0; i < data_len; i++) {
+        int byte;
+        sscanf(argv[i + 3], "%02x", &byte);
+        frame.data[i] = (__u8) byte;
+    }
+
+    can_send(s, &frame);
 }

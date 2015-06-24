@@ -40,8 +40,8 @@ int can_open(const char *itf) {
 }
 
 int can_send(int s, struct can_frame *frame) {
-    int retval;
-        retval = write(s, frame, sizeof(struct can_frame));
+    int retval = write(s, frame, sizeof(struct can_frame));
+
     if (retval != sizeof(struct can_frame)) {
         perror("Couldn't send frame");
         return -1;
