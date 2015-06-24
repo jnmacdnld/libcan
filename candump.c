@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int s = can_open_raw(argv[1]);
+    int s = can_socket_raw(argv[1]);
 
     while (1) {
         struct can_frame frame;

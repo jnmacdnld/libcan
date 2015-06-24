@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    int s = can_open_raw(argv[1]);
+    int s = can_socket_raw(argv[1]);
     struct can_frame frame;
     int arb_id = 0;
 
