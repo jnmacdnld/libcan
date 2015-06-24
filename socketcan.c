@@ -13,35 +13,32 @@
 #include <linux/can/raw.h>
 #include <errno.h>
 
-static int soc;
-static int read_can_port;
+static int s;
 
-int can_open(const char *interface) {
+int can_open(const char *itf) {
     struct ifreq ifr;
     struct sockaddr_can addr;
 
-    // Open socket
-    soc = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    if(soc < 0) {
-        printf("Couldn't open port: socket(2) encountered error %d, exiting",
-            errno);
+    s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    if(s < 0) {
+        perror("Couldn't open port");
+        return -1;
+    }
+
+    strcpy(ifr.ifr_name, itf);
+
+    if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
+        perror("Couldn't open port");
         return -1;
     }
 
     addr.can_family = AF_CAN;
-    strcpy(ifr.ifr_name, interface);
-
-    if (ioctl(soc, SIOCGIFINDEX, &ifr) < 0) {
-        printf("Couldn't open port: ioctl(2) encountered error %d\n", errno);
-        return -1;
-    }
-
     addr.can_ifindex = ifr.ifr_ifindex;
 
-    fcntl(soc, F_SETFL, O_NONBLOCK);
+    // fcntl(s, F_SETFL, O_NONBLOCK);
 
-    if (bind(soc, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        printf("Couldn't open port: bind(2) encountered error %d\n", errno);
+    if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("Couldn't open port");
         return -1;
     }
 
@@ -50,41 +47,60 @@ int can_open(const char *interface) {
 
 int can_send(struct can_frame *frame) {
     int retval;
-        retval = write(soc, frame, sizeof(struct can_frame));
+        retval = write(s, frame, sizeof(struct can_frame));
     if (retval != sizeof(struct can_frame)) {
-        printf("Couldn't send frame: write(2) encountered error %d\n", errno);
+        perror("Couldn't send frame");
         return -1;
     } else {
         return 0;
     }
 }
 
-int can_dump(struct can_frame *dump, int num_frames) {
-    struct can_frame frame_rd;
-    int recvbytes = 0;
-    
-    for (int i = 0; i < num_frames; i++) {
-        struct timeval timeout = {1, 0};
-        fd_set readSet;
-        FD_ZERO(&readSet);
-        FD_SET(soc, &readSet);
-        if (select((soc + 1), &readSet, NULL, NULL, &timeout) >= 0) {
-            if (FD_ISSET(soc, &readSet)) {
-                recvbytes = read(soc, &frame_rd, sizeof(struct can_frame));
-                if (recvbytes)
-                {
-                    dump[i] = frame_rd;
-                }
-            }
-        } else {
-            printf("Couldn't dump traffic: select(2) encountered error %d\n",
-                errno);
-            return -1;
+int can_read(struct can_frame *frame) {
+    int nbytes = read(s, frame, sizeof(struct can_frame));
+
+    if (nbytes < 0) {
+        if (errno != EAGAIN) {
+            perror("Couldn't read from socket");
         }
+
+        return -1;
     }
+
+    if (nbytes < sizeof(struct can_frame)) {
+        fprintf(stderr, "Incomplete CAN frame\n");
+        return -1;
+    }
+
+    return 1;
 }
 
 int can_close() {
-    close(soc);
+    close(s);
     return 0;
 }
+
+// int can_read(struct can_frame *frame) {
+//     struct can_frame frame_rd;
+//     int recvbytes = 0;
+    
+//     struct timeval timeout = {1, 0};
+//     fd_set readSet;
+//     FD_ZERO(&readSet);
+//     FD_SET(s, &readSet);
+//     if (select((s + 1), &readSet, NULL, NULL, &timeout) >= 0) {
+//         if (FD_ISSET(s, &readSet)) {
+//             recvbytes = read(s, &frame_rd, sizeof(struct can_frame));
+//             if (recvbytes) {
+//                 *frame = frame_rd;
+//                 return 1;
+//             } else {
+//                 return 0;
+//             }
+//         }
+//     } else {
+//         printf("Couldn't read frame: select(2) encountered error %d\n",
+//             errno);
+//         return -1;
+//     }
+// }
