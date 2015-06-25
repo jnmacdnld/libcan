@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
         data[i] = (__u8) byte;
     }
 
-    can_send_isotp(s, data_len, data);
+    can_send_isotp(s, data, data_len);
+
+    printf("Frame sent, closing socket...\n");
     can_close_raw(s);
 }
