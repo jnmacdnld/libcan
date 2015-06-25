@@ -3,6 +3,7 @@
 
 #include <linux/can.h>
 #include <linux/can/isotp.h>
+#include <net/if.h>
 
 #define ARB_ID(frame) frame.can_id & 0xfff
 
@@ -22,11 +23,18 @@ int can_send_isotp(int s, __u8 *data, int data_len);
 
 // Reads a frame from the CAN bus from the opened interface; returns 0 on
 // success and -1 on failure
+// Blocks until a message is received
 int can_read_raw(int s, struct can_frame *frame);
 
-// Reads a frame from the CAN bus from the opened interface; returns number of 
+// Reads a message from the CAN bus from the opened interface; returns number of 
 // bytes recived on success and -1 on failure
-int can_read_isotp(int s, __u8 *buf, int buf_size);
+// Blocks until a message is received
+int can_read_isotp(int s, __u8 *buf, int buf_size, fd_set *rdfs);
+
+// Send the supplied message and write the response into the supplied buffer;
+// returns the number of bytes in the response on success and -1 on failure
+int can_sndrcv_isotp(int s, __u8 *msg, int msg_len, __u8 *resp_buf,
+                     int resp_buf_len, struct timeval *timeout);
 
 // Close the specified raw CAN socket
 int can_close_raw(int s);

@@ -1,0 +1,1 @@
+gcc -g isotp-sndrcv.c libcan.c -std=gnu99 -Iinclude -o bin/isotp-sndrcv

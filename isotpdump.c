@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <net/if.h>
 
 #define BUF_SIZE 4096
 
@@ -29,7 +30,7 @@ int main(int argc, char *argv[]) {
     fd_set rdfs;
 
     while (1) {
-        int nbytes = can_read_isotp(s, data, BUF_SIZE);
+        int nbytes = can_read_isotp(s, data, BUF_SIZE, &rdfs);
         if (nbytes > 0) {
             printf("  %s  %03x   [%d]  ", argv[1], rx_id & 0xfff,
                 nbytes);

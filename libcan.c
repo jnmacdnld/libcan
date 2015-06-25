@@ -10,6 +10,7 @@
 #include <linux/can/raw.h>
 #include <errno.h>
 #include <linux/can/isotp.h>
+#include <net/if.h>
 
 static int can_socket_gen(const char *itf, int type, int can_protocol,
                           struct sockaddr_can *addr)
@@ -99,13 +100,11 @@ int can_read_raw(int s, struct can_frame *frame) {
     return 0;
 }
 
-int can_read_isotp(int s, __u8 *buf, int buf_size) {
-    fd_set rdfs;
+int can_read_isotp(int s, __u8 *buf, int buf_size, fd_set *rdfs) {
+    FD_ZERO(rdfs);
+    FD_SET(s, rdfs);
 
-    FD_ZERO(&rdfs);
-    FD_SET(s, &rdfs);
-
-    if (FD_ISSET(s, &rdfs)) {
+    if (FD_ISSET(s, rdfs)) {
         int nbytes = read(s, buf, buf_size);
         
         if (nbytes < 0) {
@@ -123,6 +122,43 @@ int can_read_isotp(int s, __u8 *buf, int buf_size) {
     }    
 
     return 0;
+}
+
+int can_sndrcv_isotp(int s, __u8 *msg, int msg_len, __u8 *resp_buf,
+                     int resp_buf_len, struct timeval *timeout)
+{
+    fd_set rdfs;
+
+    can_send_isotp(s, msg, msg_len);
+
+    FD_ZERO(&rdfs);
+    FD_SET(s, &rdfs);
+
+    int nready = select(s + 1, &rdfs, NULL, NULL, timeout);
+    if (nready > 0 && FD_ISSET(s, &rdfs)) {
+        int nbytes = read(s, resp_buf, resp_buf_len);
+        
+        if (nbytes < 0) {
+            perror("read in can_sndrcv_isotp");
+            return -1;
+        }
+
+        if (nbytes > resp_buf_len) {
+            printf("Received more bytes than fit in the buffer");
+            return -1;
+        }
+
+        return nbytes;
+        
+    } else if (nready == 0) {
+        printf("can_sndrecv_isotp timed out\n");
+        return 0;
+    } else {
+        perror("select in can_sndrcv_isotp");
+        return -1;
+    }
+
+    return -1;
 }
 
 int can_close_raw(int s) {
