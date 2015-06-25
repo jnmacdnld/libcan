@@ -1,1 +1,1 @@
-gcc candump.c libcan.c -std=gnu99 -o bin/candump
+gcc candump.c libcan.c -std=gnu99 -Iinclude -o bin/candump

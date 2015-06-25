@@ -24,6 +24,10 @@ int can_send_isotp(int s, __u8 *data, int data_len);
 // success and -1 on failure
 int can_read_raw(int s, struct can_frame *frame);
 
+// Reads a frame from the CAN bus from the opened interface; returns number of 
+// bytes recived on success and -1 on failure
+int can_read_isotp(int s, __u8 *buf, int buf_size);
+
 // Close the specified raw CAN socket
 int can_close_raw(int s);
 

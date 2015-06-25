@@ -9,12 +9,12 @@ int main(int argc, char *argv[]) {
     if (argc < 4) {
         printf("Not enough arguments\n"
                "Usage: cansend <CAN interface> <tx id> <byte> <byte> ...\n");
-        exit(0);
+        exit(1);
     }
 
     if (strlen(argv[2]) > 3) {
         printf("Only 11-bit arb ids are allowed\n");
-        exit(0);
+        exit(1);
     }
 
     int tx_id = 0;

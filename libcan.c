@@ -99,6 +99,32 @@ int can_read_raw(int s, struct can_frame *frame) {
     return 0;
 }
 
+int can_read_isotp(int s, __u8 *buf, int buf_size) {
+    fd_set rdfs;
+
+    FD_ZERO(&rdfs);
+    FD_SET(s, &rdfs);
+
+    if (FD_ISSET(s, &rdfs)) {
+        int nbytes = read(s, buf, buf_size);
+        
+        if (nbytes < 0) {
+            perror("can_read_isotp read");
+            return -1;
+        }
+
+        if (nbytes > buf_size) {
+            printf("Received more bytes than fit in the buffer");
+            return -1;
+        }
+
+        return nbytes;
+        
+    }    
+
+    return 0;
+}
+
 int can_close_raw(int s) {
     if (close(s) < 0) {
         perror("can_close_raw close");
@@ -111,3 +137,20 @@ int can_close_raw(int s) {
 int can_close_isotp(int s) {
     can_close_raw(s);
 }
+
+    // // Make a timeval struct that represents one second
+    // struct timeval timeout = {1, 0};
+
+    // fd_set read_set;
+    // FD_ZERO(&read_set);
+    // FD_SET(s, &read_set);
+
+    // if (select(s + 1, &read_set, NULL, NULL, &timeout) >= 0
+    //     && FD_ISSET(s, &readSet))
+    // {
+    //     recvbytes = read(s, data, 8);
+    //     if(recvbytes)
+    //     {
+    //         printf(“dlc = %d, data = %s\n”, frame_rd.can_dlc,frame_rd.data);
+    //     }
+    // }
