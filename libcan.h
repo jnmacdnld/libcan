@@ -2,6 +2,7 @@
 #define LIBCAN_H
 
 #include <linux/can.h>
+#include <linux/can/isotp.h>
 
 #define ARB_ID(frame) frame.can_id & 0xfff
 
@@ -9,7 +10,8 @@
 int can_socket_raw(const char *itf);
 
 // Creates an ISOTP CAN socket and returns it or -1 if an error occurs
-int can_socket_isotp(const char *itf, int tx_id, int rx_id);
+int can_socket_isotp(const char *itf, int tx_id, int rx_id,
+                     struct can_isotp_options *opts);
 
 // Sends a CAN frame; returns 0 on success and -1 on failure
 int can_send_raw(int s, struct can_frame *frame);

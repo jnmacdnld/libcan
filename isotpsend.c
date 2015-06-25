@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <linux/can/isotp.h>
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
@@ -20,7 +21,8 @@ int main(int argc, char *argv[]) {
     sscanf(argv[2], "%03x", &tx_id);
 
     // Use 0x000 as a placeholder for the rx id since one isn't needed
-    int s = can_socket_isotp(argv[1], tx_id, 0x000);
+    struct can_isotp_options opts;
+    int s = can_socket_isotp(argv[1], tx_id, 0x000, &opts);
 
     int data_len = argc - 3;
     __u8 data[data_len];

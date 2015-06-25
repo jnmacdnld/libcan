@@ -9,6 +9,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <errno.h>
+#include <linux/can/isotp.h>
 
 static int can_socket_gen(const char *itf, int type, int can_protocol,
                           struct sockaddr_can *addr)
@@ -45,14 +46,20 @@ int can_socket_raw(const char *itf) {
     return can_socket_gen(itf, SOCK_RAW, CAN_RAW, &addr);
 }
 
-int can_socket_isotp(const char *itf, int tx_id, int rx_id) {
+int can_socket_isotp(const char *itf, int tx_id, int rx_id,
+                     struct can_isotp_options *opts)
+{
     struct sockaddr_can addr;
 
     // Store the tx and rx ids in the socket address
     addr.can_addr.tp.tx_id = (canid_t) tx_id;
     addr.can_addr.tp.rx_id = (canid_t) rx_id;
 
-    return can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
+    int s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
+
+    setsockopt(s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &opts, sizeof(opts));
+
+    return s;
 }
 
 int can_send_raw(int s, struct can_frame *frame) {
