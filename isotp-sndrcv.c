@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
 
     // Create the ISOTP socket
     struct can_isotp_options opts;
+    opts.flags |= CAN_ISOTP_TX_PADDING;
+    printf("opts.flags: %03x\n", opts.flags);
+    opts.txpad_content = 0;
     int s = can_socket_isotp(argv[1], tx_id, rx_id, &opts);
 
     // Initialize the message byte array
@@ -42,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     // Do the send-receive operation
     __u8 resp_buf[BUF_SIZE];
-    struct timeval timeout = {10, 0};
+    struct timeval timeout = {1, 0};
     int nbytes = can_sndrcv_isotp(s, msg, msg_len, resp_buf, BUF_SIZE,
                                   &timeout);
 

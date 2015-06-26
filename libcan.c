@@ -58,7 +58,7 @@ int can_socket_isotp(const char *itf, int tx_id, int rx_id,
 
     int s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
 
-    setsockopt(s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &opts, sizeof(opts));
+    setsockopt(s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, opts, sizeof(*opts));
 
     return s;
 }
@@ -151,7 +151,7 @@ int can_sndrcv_isotp(int s, __u8 *msg, int msg_len, __u8 *resp_buf,
         return nbytes;
         
     } else if (nready == 0) {
-        printf("can_sndrecv_isotp timed out\n");
+        printf("can_sndrecv_isotp: No response\n");
         return 0;
     } else {
         perror("select in can_sndrcv_isotp");
