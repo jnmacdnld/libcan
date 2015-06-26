@@ -1,1 +1,0 @@
-gcc isotpdump.c libcan.c -std=gnu99 -Iinclude -o bin/isotpdump

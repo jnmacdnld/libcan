@@ -1,1 +1,0 @@
-gcc isotpsend.c libcan.c -std=gnu99 -Iinclude -o bin/isotpsend
