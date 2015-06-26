@@ -14,6 +14,11 @@ int can_socket_raw(const char *itf);
 int can_socket_isotp(const char *itf, int tx_id, int rx_id,
                      struct can_isotp_options *opts);
 
+// Creates an ISOTP CAN socket with options set to pad the transmitted frames
+// with zeroes
+int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id,
+                           struct can_isotp_options *opts);
+
 // Sends a CAN frame; returns 0 on success and -1 on failure
 int can_send_raw(int s, struct can_frame *frame);
 

@@ -63,6 +63,14 @@ int can_socket_isotp(const char *itf, int tx_id, int rx_id,
     return s;
 }
 
+int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id, 
+                           struct can_isotp_options *opts) {
+    opts->flags |= CAN_ISOTP_TX_PADDING;
+    opts->txpad_content = 0;
+
+    return can_socket_isotp(itf, tx_id, rx_id, opts);
+}
+
 int can_send_raw(int s, struct can_frame *frame) {
     int retval = write(s, frame, sizeof(struct can_frame));
 
