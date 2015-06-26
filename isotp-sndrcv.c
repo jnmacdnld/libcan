@@ -47,7 +47,6 @@ int main(int argc, char *argv[]) {
 
     // Print the reponse (if any)
     if (nbytes > 0) {
-        printf("  %s  %03x   [%d]  ", argv[1], rx_id & 0xfff, nbytes);
         for (int k = 0; k < nbytes; k++) {
             printf("%02x ", buf[k]);
         }
