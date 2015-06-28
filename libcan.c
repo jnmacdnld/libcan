@@ -47,28 +47,30 @@ int can_socket_raw(const char *itf) {
     return can_socket_gen(itf, SOCK_RAW, CAN_RAW, &addr);
 }
 
-int can_socket_isotp(const char *itf, int tx_id, int rx_id,
-                     struct can_isotp_options *opts)
+int start_isotp_sess(const char *itf, int tx_id, int rx_id,
+                     struct isotp_sess *sess)
 {
-    struct sockaddr_can addr;
-
     // Store the tx and rx ids in the socket address
-    addr.can_addr.tp.tx_id = (canid_t) tx_id;
-    addr.can_addr.tp.rx_id = (canid_t) rx_id;
+    sess->addr.can_addr.tp.tx_id = (canid_t) tx_id;
+    sess->addr.can_addr.tp.rx_id = (canid_t) rx_id;
 
-    int s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
+    sess->s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
+    if (sess->s < 1) { return -1; }
 
-    setsockopt(s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, opts, sizeof(*opts));
+    int r = setsockopt(sess->s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &(sess->opts),
+                       sizeof(sess->opts));
+    if (r < 0) { perror("setsockopt in start_isotp_sess"); return -1; }
 
-    return s;
+    return 0;
 }
 
-int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id, 
-                           struct can_isotp_options *opts) {
-    opts->flags |= CAN_ISOTP_TX_PADDING;
-    opts->txpad_content = 0;
+int start_isotp_sess_txpad(const char *itf, int tx_id, int rx_id,
+                           struct isotp_sess *sess)
+{
+    sess->opts.flags |= CAN_ISOTP_TX_PADDING;
+    sess->opts.txpad_content = 0;
 
-    return can_socket_isotp(itf, tx_id, rx_id, opts);
+    return start_isotp_sess(itf, tx_id, rx_id, sess);
 }
 
 int can_send_raw(int s, struct can_frame *frame) {
@@ -82,8 +84,8 @@ int can_send_raw(int s, struct can_frame *frame) {
     }
 }
 
-int can_send_isotp(int s, __u8 *data, int data_len) {
-    int retval = write(s, data, data_len);
+int can_send_isotp(struct isotp_sess *sess, __u8 *data, int data_len) {
+    int retval = write(sess->s, data, data_len);
     if (retval < 0) {
         perror("can_send_isotp write");
         return -1;
@@ -108,12 +110,12 @@ int can_read_raw(int s, struct can_frame *frame) {
     return 0;
 }
 
-int can_read_isotp(int s, __u8 *buf, int buf_size, fd_set *rdfs) {
-    FD_ZERO(rdfs);
-    FD_SET(s, rdfs);
+int can_read_isotp(struct isotp_sess *sess) {
+    FD_ZERO(sess->rdfs);
+    FD_SET(sess->s, sess->rdfs);
 
-    if (FD_ISSET(s, rdfs)) {
-        int nbytes = read(s, buf, buf_size);
+    if (FD_ISSET(sess->s, rdfs)) {
+        int nbytes = read(sess->s, sess->buf, ISOTP_BUF_SIZE);
         
         if (nbytes < 0) {
             perror("can_read_isotp read");

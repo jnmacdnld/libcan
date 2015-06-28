@@ -5,7 +5,33 @@
 #include <linux/can/isotp.h>
 #include <net/if.h>
 
+#define NEG_RESP_SID 0x7F
+#define POS_RESPONSE 0x00
+#define SUB_FUNC_NOT_SUPPORTED 0x12
+#define SECURITY_ACCESS_DENIED 0x33
+#define REQ_OUT_OF_RANGE 0x31
+
+#define DIAG_SESS_CTRL_REQ_SID 0x10
+#define DIAG_SESS_CTRL_RESP_SID 0x50
+#define DEFAULT_SESS 0x01
+#define EXTENDED_DIAG_SESS 0x02
+
+#define RTNE_CTRL_REQ_SID 0x31
+#define RTNE_CTRL_RESP_SID 0x71
+#define START_RTNE 0x01
+#define STOP_RTNE 0x02
+
+#define RESP_PENDING 0x78
+
 #define ARB_ID(frame) frame.can_id & 0xfff
+
+struct isotp_sess {
+	int s;
+	__u8 buf[ISOTP_BUF_SIZE];
+	fd_set rdfs;
+	struct sockaddr_can addr;
+	can_isotp_options opts;
+};
 
 // Creates an raw CAN socket and returns it or -1 if an error occurs
 int can_socket_raw(const char *itf);
@@ -18,6 +44,10 @@ int can_socket_isotp(const char *itf, int tx_id, int rx_id,
 // with zeroes
 int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id,
                            struct can_isotp_options *opts);
+
+
+int start_isotp_sess(const char *itf, int tx_id, int rx_id,
+                     struct isotp_sess *sess);
 
 // Sends a CAN frame; returns 0 on success and -1 on failure
 int can_send_raw(int s, struct can_frame *frame);
@@ -46,23 +76,5 @@ int can_close_raw(int s);
 
 // Close the specified ISOTP CAN socket
 int can_close_isotp(int s);
-
-#define NEG_RESP_SID 0x7F
-#define POS_RESPONSE 0x00
-#define SUB_FUNC_NOT_SUPPORTED 0x12
-#define SECURITY_ACCESS_DENIED 0x33
-#define REQ_OUT_OF_RANGE 0x31
-
-#define DIAG_SESS_CTRL_REQ_SID 0x10
-#define DIAG_SESS_CTRL_RESP_SID 0x50
-#define DEFAULT_SESS 0x01
-#define EXTENDED_DIAG_SESS 0x02
-
-#define RTNE_CTRL_REQ_SID 0x31
-#define RTNE_CTRL_RESP_SID 0x71
-#define START_RTNE 0x01
-#define STOP_RTNE 0x02
-
-#define RESP_PENDING 0x78
 
 #endif /* LIBCAN_H */
