@@ -31,7 +31,7 @@
 
 #define NEW_DEFAULT_ISOTP_SESS {                                              \
                                    .opts = {.flags = CAN_ISOTP_TX_PADDING},   \
-                                   .timeout = {0, 1}                          \
+                                   .timeout = {1, 0}                          \
                                }
 
 struct isotp_sess {
