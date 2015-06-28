@@ -55,8 +55,8 @@ int can_socket_raw(const char *itf);
 //                            struct can_isotp_options *opts);
 
 
-int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
-                     int rx_id);
+int can_start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
+                         int rx_id);
 
 // Sends a CAN frame; returns 0 on success and -1 on failure
 int can_send_raw(int s, struct can_frame *frame);
@@ -83,9 +83,9 @@ int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len);
 int can_close_raw(int s);
 
 // Close the specified ISOTP CAN socket
-int end_isotp_sess(struct isotp_sess *sess);
+int can_end_isotp_sess(struct isotp_sess *sess);
 
 // Prints the bytes from the buffer with a newline at the end
-void print_bytes(__u8 *buf, int buf_len);
+void can_print_bytes(__u8 *buf, int buf_len);
 
 #endif /* LIBCAN_H */

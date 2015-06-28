@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     sscanf(argv[2], "%x", &tx_id);
 
     // Start the ISOTP session
-    if (start_isotp_sess(&sess, argv[1], tx_id, NO_CAN_ID) < 0) {
+    if (can_start_isotp_sess(&sess, argv[1], tx_id, NO_CAN_ID) < 0) {
         exit(-1);
     }
 
@@ -35,5 +35,5 @@ int main(int argc, char *argv[]) {
     can_send_isotp(&sess, data, data_len);
 
     printf("Frame sent, closing socket...\n");
-    end_isotp_sess(&sess);
+    can_end_isotp_sess(&sess);
 }

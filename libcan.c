@@ -47,8 +47,8 @@ int can_socket_raw(const char *itf) {
     return can_socket_gen(itf, SOCK_RAW, CAN_RAW, &addr);
 }
 
-int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
-                     int rx_id)
+int can_start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
+                         int rx_id)
 {
     struct sockaddr_can addr;
 
@@ -61,7 +61,7 @@ int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
 
     int r = setsockopt(sess->s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &(sess->opts),
                        sizeof(sess->opts));
-    if (r < 0) { perror("setsockopt in start_isotp_sess"); return -1; }
+    if (r < 0) { perror("setsockopt in can_start_isotp_sess"); return -1; }
 
     return 0;
 }
@@ -170,11 +170,11 @@ int can_close_raw(int s) {
     }
 }
 
-int end_isotp_sess(struct isotp_sess *sess) {
+int can_end_isotp_sess(struct isotp_sess *sess) {
     can_close_raw(sess->s);
 }
 
-void print_bytes(__u8 *buf, int nbytes) {
+void can_print_bytes(__u8 *buf, int nbytes) {
     for (int k = 0; k < nbytes; k++) {
         printf("%02x ", buf[k]);
     }

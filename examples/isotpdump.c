@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     sscanf(argv[2], "%x", &rx_id);
 
     // Start the ISOTP session
-    if (start_isotp_sess(argv[1], NO_CAN_ID, rx_id, &sess) < 0) {
+    if (can_start_isotp_sess(argv[1], NO_CAN_ID, rx_id, &sess) < 0) {
         exit(1);
     }
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         nbytes = can_read_isotp(&sess);
         if (nbytes > 0) {
             printf("  %s  %03x   [%d]  ", argv[1], rx_id & 0xfff, nbytes);
-            print_bytes(sess.buf, nbytes);
+            can_print_bytes(sess.buf, nbytes);
         }
     }
 }

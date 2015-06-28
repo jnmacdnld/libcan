@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     // Start the ISOTP session witht the default options
     struct isotp_sess sess = NEW_DEFAULT_ISOTP_SESS;
     // sess.timeout.tv_sec = 10;
-    if (start_isotp_sess(&sess, argv[1], tx_id, rx_id) < 0) { return -1; }
+    if (can_start_isotp_sess(&sess, argv[1], tx_id, rx_id) < 0) { return -1; }
 
     // Initialize the message byte array
     int msg_len = argc - 4;
@@ -41,9 +41,9 @@ int main(int argc, char *argv[]) {
     // Print the reponse (if any)
     if (nbytes > 0) {
         printf("Response: ");
-        print_bytes(sess.buf, nbytes);
+        can_print_bytes(sess.buf, nbytes);
     }
 
     printf("Closing socket...\n");
-    end_isotp_sess(&sess);
+    can_end_isotp_sess(&sess);
 }
