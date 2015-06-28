@@ -29,10 +29,10 @@
 #define ISOTP_BUF_SIZE 4096
 #define NO_CAN_ID 0xFFFF
 
-#define DEFAULT_ISOTP_SESS  {                                               \
-                                .opts = {.flags = CAN_ISOTP_TX_PADDING},    \
-                                .timeout = {0, 1}                           \
-                            }
+#define NEW_DEFAULT_ISOTP_SESS {                                              \
+                                   .opts = {.flags = CAN_ISOTP_TX_PADDING},   \
+                                   .timeout = {0, 1}                          \
+                               }
 
 struct isotp_sess {
     int s;

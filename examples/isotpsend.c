@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     }
 
     int tx_id = 0;
-    struct isotp_sess sess = DEFAULT_ISOTP_SESS;
+    struct isotp_sess sess = NEW_DEFAULT_ISOTP_SESS;
     int data_len = argc - 3;
     __u8 data[data_len];
 
