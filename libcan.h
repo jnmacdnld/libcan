@@ -29,7 +29,10 @@
 #define ISOTP_BUF_SIZE 4096
 #define NO_CAN_ID 0xFFFF
 
-#define DEFAULT_ISOTP_SESS {.opts = {.flags = CAN_ISOTP_TX_PADDING}, .timeout = {0, 1}}
+#define DEFAULT_ISOTP_SESS  {                                               \
+                                .opts = {.flags = CAN_ISOTP_TX_PADDING},    \
+                                .timeout = {0, 1}                           \
+                            }
 
 struct isotp_sess {
     int s;
@@ -54,9 +57,6 @@ int can_socket_raw(const char *itf);
 
 int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
                      int rx_id);
-
-int start_isotp_sess_def(struct isotp_sess *sess, const char *itf, int tx_id,
-                         int rx_id);
 
 // Sends a CAN frame; returns 0 on success and -1 on failure
 int can_send_raw(int s, struct can_frame *frame);

@@ -66,20 +66,6 @@ int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
     return 0;
 }
 
-int start_isotp_sess_def(struct isotp_sess *sess, const char *itf, int tx_id,
-                         int rx_id)
-{
-    // Pad transmitted messages with zeroes by default
-    sess->opts.flags |= CAN_ISOTP_TX_PADDING;
-    sess->opts.txpad_content = 0;
-
-    // Timeout value of 1 second by default
-    sess->timeout.tv_sec = 1;
-    sess->timeout.tv_usec = 0;
-
-    return start_isotp_sess(sess, itf, tx_id, rx_id);
-}
-
 int can_send_raw(int s, struct can_frame *frame) {
     int retval = write(s, frame, sizeof(struct can_frame));
 
