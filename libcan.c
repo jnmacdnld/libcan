@@ -47,8 +47,8 @@ int can_socket_raw(const char *itf) {
     return can_socket_gen(itf, SOCK_RAW, CAN_RAW, &addr);
 }
 
-int start_isotp_sess(const char *itf, int tx_id, int rx_id,
-                     struct isotp_sess *sess)
+int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
+                     int rx_id)
 {
     struct sockaddr_can addr;
 
@@ -77,7 +77,7 @@ int start_isotp_sess_def(const char *itf, int tx_id, int rx_id,
     sess->timeout.tv_sec = 1;
     sess->timeout.tv_usec = 0;
 
-    return start_isotp_sess(itf, tx_id, rx_id, sess);
+    return start_isotp_sess(sess, itf, tx_id, rx_id);
 }
 
 int can_send_raw(int s, struct can_frame *frame) {

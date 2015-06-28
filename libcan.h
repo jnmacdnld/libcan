@@ -27,7 +27,7 @@
 #define ARB_ID(frame) frame.can_id & 0xfff
 
 #define ISOTP_BUF_SIZE 4096
-#define NO_CAN_ID 0xFFFFFFFFU
+#define NO_CAN_ID 0xFFFF
 
 struct isotp_sess {
     int s;
@@ -50,8 +50,8 @@ int can_socket_raw(const char *itf);
 //                            struct can_isotp_options *opts);
 
 
-int start_isotp_sess(const char *itf, int tx_id, int rx_id,
-                     struct isotp_sess *sess);
+int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
+                     int rx_id);
 
 // Sends a CAN frame; returns 0 on success and -1 on failure
 int can_send_raw(int s, struct can_frame *frame);

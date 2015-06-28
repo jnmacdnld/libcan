@@ -20,8 +20,9 @@ int main(int argc, char *argv[]) {
     sscanf(argv[2], "%x", &rx_id);
 
     // Start the ISOTP session
-    start_isotp_sess(argv[1], 0, rx_id, &sess);
-    if (sess.s < 0) { exit(1); }
+    if (start_isotp_sess(argv[1], NO_CAN_ID, rx_id, &sess) < 0) {
+        exit(1);
+    }
 
     // Print the received messages
     while (1) {
