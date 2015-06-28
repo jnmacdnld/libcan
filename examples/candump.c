@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         struct can_frame frame;
 
         if (can_read_raw(s, &frame) == 0) {
-            printf("  %s  %03x   [%d]  ", "can0", ARB_ID(frame),
+            printf("  %s  %03x   [%d]  ", argv[1], ARB_ID(frame),
                 frame.can_dlc);
             for (int k = 0; k < frame.can_dlc; k++) {
                 printf("%02x ", frame.data[k]);

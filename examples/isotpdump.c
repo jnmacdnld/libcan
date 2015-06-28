@@ -5,39 +5,30 @@
 #include <string.h>
 #include <net/if.h>
 
-#define BUF_SIZE 4096
-
 int main(int argc, char *argv[]) {
+    // Ensure enough arguments are provided by the user
     if (argc < 3) {
         printf("Wrong number of arguments\n"
                "Usage: isotpdump <CAN interface> <rx id>\n");
         exit(1);
     }
 
-    if (strlen(argv[2]) > 3) {
-        printf("Only 11-bit arb ids are allowed\n");
-        exit(1);
-    }
+    int nbytes, rx_id = 0;
+    struct isotp_sess sess = {0};
 
-    int rx_id = 0;
-    sscanf(argv[2], "%03x", &rx_id);
+    // Copy the receive id the user provided into rx_id
+    sscanf(argv[2], "%x", &rx_id);
 
-    struct can_isotp_options opts;
-    int s = can_socket_isotp(argv[1], 0x000, rx_id, &opts);
+    // Start the ISOTP session
+    start_isotp_sess(argv[1], NO_CAN_ID, rx_id, &sess);
+    if (sess.s < 0) { exit(1); }
 
-    __u8 data[BUF_SIZE];
-
-    fd_set rdfs;
-
+    // Print the received messages
     while (1) {
-        int nbytes = can_read_isotp(s, data, BUF_SIZE, &rdfs);
+        nbytes = can_read_isotp(&sess);
         if (nbytes > 0) {
-            printf("  %s  %03x   [%d]  ", argv[1], rx_id & 0xfff,
-                nbytes);
-            for (int k = 0; k < nbytes; k++) {
-                printf("%02x ", data[k]);
-            }
-            printf("\n");
+            printf("  %s  %03x   [%d]  ", argv[1], rx_id & 0xfff, nbytes);
+            print_bytes(sess.buf, nbytes);
         }
     }
 }
