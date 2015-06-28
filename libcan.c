@@ -66,8 +66,8 @@ int start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
     return 0;
 }
 
-int start_isotp_sess_def(const char *itf, int tx_id, int rx_id,
-                         struct isotp_sess *sess)
+int start_isotp_sess_def(struct isotp_sess *sess, const char *itf, int tx_id,
+                         int rx_id)
 {
     // Pad transmitted messages with zeroes by default
     sess->opts.flags |= CAN_ISOTP_TX_PADDING;
