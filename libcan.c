@@ -148,6 +148,19 @@ int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len) {
             return -1;
         }
 
+        if (sess->buf[0] == NEG_RESP_SID
+            && sess->buf[1] == DIAG_SESS_CTRL_REQ_SID
+            && sess->buf[2] == RESP_PENDING)
+        {
+
+            printf("Received responsePending, waiting for response...");
+            while(1) {
+                nbytes = can_read_isotp(sess);
+                if (nbytes > 0 && sess->buf[2] != RESP_PENDING) { break; }
+            }
+            printf("Received response");
+        }
+
         return nbytes;
         
     } else if (nready == 0) {
