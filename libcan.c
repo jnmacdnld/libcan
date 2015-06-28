@@ -27,7 +27,7 @@ static int can_socket_gen(const char *itf, int type, int can_protocol,
     strcpy(ifr.ifr_name, itf);
 
     if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
-        // perror("can_socket_gen ioctl");
+        perror("can_socket_gen ioctl");
         return -1;
     }
 
@@ -50,16 +50,13 @@ int can_socket_raw(const char *itf) {
 int start_isotp_sess(const char *itf, int tx_id, int rx_id,
                      struct isotp_sess *sess)
 {
-
     struct sockaddr_can addr;
 
-    // Store the tx and rx ids in the socket address
+    // Store the transmit and receive ids in the socket address
     addr.can_addr.tp.tx_id = (canid_t) tx_id;
     addr.can_addr.tp.rx_id = (canid_t) rx_id;
 
-    int s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);    
-
-    sess->s = s;
+    sess->s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
     if (sess->s < 0) { return -1; }
 
     int r = setsockopt(sess->s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &(sess->opts),

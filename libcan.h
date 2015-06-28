@@ -41,13 +41,13 @@ struct isotp_sess {
 int can_socket_raw(const char *itf);
 
 // Creates an ISOTP CAN socket and returns it or -1 if an error occurs
-int can_socket_isotp(const char *itf, int tx_id, int rx_id,
-                     struct can_isotp_options *opts);
+// int can_socket_isotp(const char *itf, int tx_id, int rx_id,
+//                      struct can_isotp_options *opts);
 
 // Creates an ISOTP CAN socket with options set to pad the transmitted frames
-// with zeroes
-int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id,
-                           struct can_isotp_options *opts);
+// // with zeroes
+// int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id,
+//                            struct can_isotp_options *opts);
 
 
 int start_isotp_sess(const char *itf, int tx_id, int rx_id,
