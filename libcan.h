@@ -31,7 +31,6 @@
 
 struct isotp_sess {
     int s;
-    struct sockaddr_can addr;
     struct can_isotp_options opts;
     __u8 buf[ISOTP_BUF_SIZE];
     fd_set rdfs;
