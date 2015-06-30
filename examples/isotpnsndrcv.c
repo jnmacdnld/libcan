@@ -17,9 +17,10 @@ int main(int argc, char *argv[]) {
     }
 
     // Initialize the transmit and receive ids
-    int tx_id, rx_id;
-    sscanf(argv[3], "%x", &rx_id);
+    int tx_id, rx_id, n_ops;
     sscanf(argv[2], "%x", &tx_id);
+    sscanf(argv[3], "%x", &rx_id);
+    sscanf(argv[4], "%d", &n_ops);
 
     // Start the ISOTP session witht the default options
     struct isotp_sess sess = NEW_DEFAULT_ISOTP_SESS;
@@ -27,13 +28,13 @@ int main(int argc, char *argv[]) {
     if (can_start_isotp_sess(&sess, argv[1], tx_id, rx_id) < 0) { return -1; }
 
     // Initialize the message byte array
-    int msg_len = argc - 4;
+    int msg_len = argc - 5;
     __u8 msg[msg_len];
 
     // Fill the message byte array
     int byte;
     for (__u8 i = 0; i < msg_len; i++) {
-        sscanf(argv[i + 4], "%02x", &byte);
+        sscanf(argv[i + 5], "%02x", &byte);
         msg[i] = (__u8) byte;
     }
 
@@ -42,17 +43,20 @@ int main(int argc, char *argv[]) {
 
     int nbytes;
 
-    nbytes = can_sndrcv_isotp(&sess, msg, msg_len);
+    for (int i = 0; i < n_ops; i++) {
+        // sess.timeout.tv_sec = 1;
+        // sess.timeout.tv_usec = 0;
+        nbytes = can_sndrcv_isotp(&sess, msg, msg_len);
+    }
 
     gettimeofday(&end, NULL);
     int diff_usec = (end.tv_usec + (end.tv_sec * 1000000))
                     - (start.tv_usec + (start.tv_sec * 1000000));
+    float diff_msec = diff_usec / 1000.0;
 
-    // Print the reponse (if any)
-    if (nbytes > 0) {
-        printf("Response (%f msec): ", diff_usec / 1000.0);
-        can_print_bytes(sess.buf, nbytes);
-    }
+    printf("Done (%f msec total, %f per op)\n", diff_msec,
+        diff_msec / n_ops);
+    
     
 
     printf("Closing socket...\n");
