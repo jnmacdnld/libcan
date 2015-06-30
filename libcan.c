@@ -133,10 +133,10 @@ int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len) {
     FD_ZERO(&(sess->rdfs));
     FD_SET(sess->s, &(sess->rdfs));
 
-    int nready = select(sess->s + 1, &(sess->rdfs), NULL, NULL,
-                        &(sess->timeout));
+    int nready = pselect(sess->s + 1, &(sess->rdfs), NULL, NULL,
+                         &(sess->timeout), NULL);
     if (nready > 0 && FD_ISSET((sess->s), &(sess->rdfs))) {
-        int nbytes = read(sess->s, sess->buf, ISOTP_BUF_SIZE);
+        int nbytes = recv(sess->s, sess->buf, ISOTP_BUF_SIZE, 0);
         
         if (nbytes < 0) {
             perror("read in can_sndrcv_isotp");
@@ -152,7 +152,6 @@ int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len) {
             && sess->buf[1] == DIAG_SESS_CTRL_REQ_SID
             && sess->buf[2] == RESP_PENDING)
         {
-
             printf("Received responsePending, waiting for response...");
             while(1) {
                 nbytes = can_read_isotp(sess);

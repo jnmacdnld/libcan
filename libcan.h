@@ -26,7 +26,7 @@
 
 #define ARB_ID(frame) frame.can_id & 0xfff
 
-#define ISOTP_BUF_SIZE 4096
+#define ISOTP_BUF_SIZE 10000
 #define NO_CAN_ID 0xFFFF
 
 #define NEW_DEFAULT_ISOTP_SESS {                                              \
@@ -37,9 +37,9 @@
 struct isotp_sess {
     int s;
     struct can_isotp_options opts;
-    __u8 buf[ISOTP_BUF_SIZE];
+    struct timespec timeout;
     fd_set rdfs;
-    struct timeval timeout;
+    __u8 buf[ISOTP_BUF_SIZE];
 };
 
 // All functions return 0 on success and -1 on failure unless otherwise noted
