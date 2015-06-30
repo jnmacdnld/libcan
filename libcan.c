@@ -47,28 +47,23 @@ int can_socket_raw(const char *itf) {
     return can_socket_gen(itf, SOCK_RAW, CAN_RAW, &addr);
 }
 
-int can_socket_isotp(const char *itf, int tx_id, int rx_id,
-                     struct can_isotp_options *opts)
+int can_start_isotp_sess(struct isotp_sess *sess, const char *itf, int tx_id,
+                         int rx_id)
 {
     struct sockaddr_can addr;
 
-    // Store the tx and rx ids in the socket address
+    // Store the transmit and receive ids in the socket address
     addr.can_addr.tp.tx_id = (canid_t) tx_id;
     addr.can_addr.tp.rx_id = (canid_t) rx_id;
 
-    int s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
+    sess->s = can_socket_gen(itf, SOCK_DGRAM, CAN_ISOTP, &addr);
+    if (sess->s < 0) { return -1; }
 
-    setsockopt(s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, opts, sizeof(*opts));
+    int r = setsockopt(sess->s, SOL_CAN_ISOTP, CAN_ISOTP_OPTS, &(sess->opts),
+                       sizeof(sess->opts));
+    if (r < 0) { perror("setsockopt in can_start_isotp_sess"); return -1; }
 
-    return s;
-}
-
-int can_socket_isotp_txpad(const char *itf, int tx_id, int rx_id, 
-                           struct can_isotp_options *opts) {
-    opts->flags |= CAN_ISOTP_TX_PADDING;
-    opts->txpad_content = 0;
-
-    return can_socket_isotp(itf, tx_id, rx_id, opts);
+    return 0;
 }
 
 int can_send_raw(int s, struct can_frame *frame) {
@@ -82,8 +77,8 @@ int can_send_raw(int s, struct can_frame *frame) {
     }
 }
 
-int can_send_isotp(int s, __u8 *data, int data_len) {
-    int retval = write(s, data, data_len);
+int can_send_isotp(struct isotp_sess *sess, __u8 *data, int data_len) {
+    int retval = write(sess->s, data, data_len);
     if (retval < 0) {
         perror("can_send_isotp write");
         return -1;
@@ -108,19 +103,19 @@ int can_read_raw(int s, struct can_frame *frame) {
     return 0;
 }
 
-int can_read_isotp(int s, __u8 *buf, int buf_size, fd_set *rdfs) {
-    FD_ZERO(rdfs);
-    FD_SET(s, rdfs);
+int can_read_isotp(struct isotp_sess *sess) {
+    FD_ZERO( &(sess->rdfs) );
+    FD_SET( sess->s, &(sess->rdfs) );
 
-    if (FD_ISSET(s, rdfs)) {
-        int nbytes = read(s, buf, buf_size);
+    if (FD_ISSET( sess->s, &(sess->rdfs) )) {
+        int nbytes = read(sess->s, sess->buf, ISOTP_BUF_SIZE);
         
         if (nbytes < 0) {
             perror("can_read_isotp read");
             return -1;
         }
 
-        if (nbytes > buf_size) {
+        if (nbytes > ISOTP_BUF_SIZE) {
             printf("Received more bytes than fit in the buffer");
             return -1;
         }
@@ -132,28 +127,37 @@ int can_read_isotp(int s, __u8 *buf, int buf_size, fd_set *rdfs) {
     return 0;
 }
 
-int can_sndrcv_isotp(int s, __u8 *msg, int msg_len, __u8 *resp_buf,
-                     int resp_buf_len, struct timeval *timeout)
-{
-    fd_set rdfs;
+int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len) {
+    can_send_isotp(sess, msg, msg_len);
 
-    can_send_isotp(s, msg, msg_len);
+    FD_ZERO(&(sess->rdfs));
+    FD_SET(sess->s, &(sess->rdfs));
 
-    FD_ZERO(&rdfs);
-    FD_SET(s, &rdfs);
-
-    int nready = select(s + 1, &rdfs, NULL, NULL, timeout);
-    if (nready > 0 && FD_ISSET(s, &rdfs)) {
-        int nbytes = read(s, resp_buf, resp_buf_len);
+    int nready = pselect(sess->s + 1, &(sess->rdfs), NULL, NULL,
+                         &(sess->timeout), NULL);
+    if (nready > 0 && FD_ISSET((sess->s), &(sess->rdfs))) {
+        int nbytes = recv(sess->s, sess->buf, ISOTP_BUF_SIZE, 0);
         
         if (nbytes < 0) {
             perror("read in can_sndrcv_isotp");
             return -1;
         }
 
-        if (nbytes > resp_buf_len) {
+        if (nbytes > ISOTP_BUF_SIZE) {
             printf("Received more bytes than fit in the buffer");
             return -1;
+        }
+
+        if (sess->buf[0] == NEG_RESP_SID
+            && sess->buf[1] == DIAG_SESS_CTRL_REQ_SID
+            && sess->buf[2] == RESP_PENDING)
+        {
+            printf("Received responsePending, waiting for response...");
+            while(1) {
+                nbytes = can_read_isotp(sess);
+                if (nbytes > 0 && sess->buf[2] != RESP_PENDING) { break; }
+            }
+            printf("Received response");
         }
 
         return nbytes;
@@ -178,6 +182,13 @@ int can_close_raw(int s) {
     }
 }
 
-int can_close_isotp(int s) {
-    can_close_raw(s);
+int can_end_isotp_sess(struct isotp_sess *sess) {
+    can_close_raw(sess->s);
+}
+
+void can_print_bytes(__u8 *buf, int nbytes) {
+    for (int k = 0; k < nbytes; k++) {
+        printf("%02x ", buf[k]);
+    }
+    printf("\n");
 }

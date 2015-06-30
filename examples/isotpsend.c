@@ -12,30 +12,28 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (strlen(argv[2]) > 3) {
-        printf("Only 11-bit arb ids are allowed\n");
-        exit(1);
-    }
-
     int tx_id = 0;
-    sscanf(argv[2], "%03x", &tx_id);
-
-    // Use 0x000 as a placeholder for the rx id since one isn't needed
-    struct can_isotp_options opts;
-    int s = can_socket_isotp(argv[1], tx_id, 0x000, &opts);
-
+    struct isotp_sess sess = NEW_DEFAULT_ISOTP_SESS;
     int data_len = argc - 3;
     __u8 data[data_len];
 
+    // Copy the user provided transmit id into tx_id
+    sscanf(argv[2], "%x", &tx_id);
+
+    // Start the ISOTP session
+    if (can_start_isotp_sess(&sess, argv[1], tx_id, NO_CAN_ID) < 0) {
+        exit(-1);
+    }
+
     // Fill the data array
-    for (__u8 i = 0; i < data_len; i++) {
-        int byte;
+    int byte;
+    for (int i = 0; i < data_len; i++) {
         sscanf(argv[i + 3], "%02x", &byte);
         data[i] = (__u8) byte;
     }
 
-    can_send_isotp(s, data, data_len);
+    can_send_isotp(&sess, data, data_len);
 
     printf("Frame sent, closing socket...\n");
-    can_close_raw(s);
+    can_end_isotp_sess(&sess);
 }
