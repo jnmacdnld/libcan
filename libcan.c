@@ -116,7 +116,7 @@ int can_read_isotp(struct isotp_sess *sess) {
         }
 
         if (nbytes > ISOTP_BUF_SIZE) {
-            printf("Received more bytes than fit in the buffer");
+            printf("Received more bytes than fit in the buffer\n");
             return -1;
         }
 
@@ -144,7 +144,7 @@ int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len) {
         }
 
         if (nbytes > ISOTP_BUF_SIZE) {
-            printf("Received more bytes than fit in the buffer");
+            printf("Received more bytes than fit in the buffer\n");
             return -1;
         }
 
@@ -152,12 +152,12 @@ int can_sndrcv_isotp(struct isotp_sess *sess, __u8 *msg, int msg_len) {
             && sess->buf[1] == DIAG_SESS_CTRL_REQ_SID
             && sess->buf[2] == RESP_PENDING)
         {
-            printf("Received responsePending, waiting for response...");
+            printf("Received responsePending, waiting for response...\n");
             while(1) {
                 nbytes = can_read_isotp(sess);
                 if (nbytes > 0 && sess->buf[2] != RESP_PENDING) { break; }
             }
-            printf("Received response");
+            printf("Received response\n");
         }
 
         return nbytes;
